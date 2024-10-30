@@ -3,21 +3,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 import datetime
 import pandas as pd
 from collections import defaultdict
-
-wines_excel = pd.read_excel('wine3.xlsx', sheet_name='Лист1')
-wines = wines_excel.to_dict(orient='records')
-
-wine_categories = defaultdict(list)
-
-for wine in wines:
-    wine_categories[wine['Категория']].append(wine)
-
-env = Environment(
-    loader=FileSystemLoader('.'),
-    autoescape=select_autoescape(['html'])
-)
-template = env.get_template('template.html')
-wine_age = datetime.datetime.now().year - 1920
+from environs import Env
 
 
 def get_year_word(number):
@@ -36,13 +22,37 @@ def get_year_word(number):
     return word
 
 
-rendered_page = template.render(
-    wine_age=f'Уже {wine_age} {get_year_word(wine_age)} с вами',
-    wines_type=dict(wine_categories)
-)
+def main():
+    env = Env()
+    env.read_env()
 
-with open('index.html', 'w', encoding='utf8') as file:
-    file.write(rendered_page)
+    excel_file = env.str('EXCEL_FILE')
+    wines_excel = pd.read_excel(excel_file, sheet_name='Лист1')
+    wines = wines_excel.to_dict(orient='records')
 
-server = HTTPServer(('0.0.0.0', 8000), SimpleHTTPRequestHandler)
-server.serve_forever()
+    wine_categories = defaultdict(list)
+
+    for wine in wines:
+        wine_categories[wine['Категория']].append(wine)
+
+    jinja_env = Environment(
+        loader=FileSystemLoader('.'),
+        autoescape=select_autoescape(['html'])
+    )
+    template = jinja_env.get_template('template.html')
+    wine_age = datetime.datetime.now().year - 1920
+
+    rendered_page = template.render(
+        wine_age=f'Уже {wine_age} {get_year_word(wine_age)} с вами',
+        wines_type=dict(wine_categories)
+    )
+
+    with open('index.html', 'w', encoding='utf8') as file:
+        file.write(rendered_page)
+
+    server = HTTPServer(('0.0.0.0', 8000), SimpleHTTPRequestHandler)
+    server.serve_forever()
+
+
+if __name__ == '__main__':
+    main()
