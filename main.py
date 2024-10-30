@@ -4,6 +4,7 @@ import datetime
 import pandas as pd
 from collections import defaultdict
 from environs import Env
+import argparse
 
 
 def get_year_word(number):
@@ -26,10 +27,15 @@ def main():
     env = Env()
     env.read_env()
 
-    excel_file = env.str('EXCEL_FILE')
+    parser = argparse.ArgumentParser(description='Скрипт добавляет элементы из файла на сайт')
+    parser.add_argument('--file_path', default=env.str('EXCEL_FILE'), help='Указать путь к файлу с данными')
+    args = parser.parse_args()
+
+    excel_file = args.file_path
+
     wines_excel = pd.read_excel(excel_file, sheet_name='Лист1')
     wines = wines_excel.to_dict(orient='records')
-
+    
     wine_categories = defaultdict(list)
 
     for wine in wines:
