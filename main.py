@@ -5,12 +5,12 @@ import pandas as pd
 from collections import defaultdict
 
 wines_excel = pd.read_excel('wine3.xlsx', sheet_name='Лист1')
-wines_dict = wines_excel.to_dict(orient='records')
+wines = wines_excel.to_dict(orient='records')
 
 wine_categories = defaultdict(list)
 
-for category in wines_dict:
-    wine_categories[category['Категория']].append(category)
+for wine in wines:
+    wine_categories[wine['Категория']].append(wine)
 
 env = Environment(
     loader=FileSystemLoader('.'),
