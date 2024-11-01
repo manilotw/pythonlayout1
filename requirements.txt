@@ -1,5 +1,4 @@
-httpserver
-jinja2
-pandas
-environs
-argparse
+jinja2==3.1.2
+pandas==2.0.3
+environs==9.5.0
+
